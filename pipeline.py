@@ -1,4 +1,4 @@
-﻿import time
+import time
 import os
 import pandas as pd
 import chromadb
@@ -8,6 +8,7 @@ from dotenv import load_dotenv
 from google import genai
 
 from chunking import chunk_fixed
+from guardrails import check_query_safety, check_answer_quality
 
 load_dotenv()
 
@@ -85,7 +86,8 @@ def retrieve(query, k=3):
     results = collection.query(query_embeddings=query_embedding, n_results=k)
     docs = results["documents"][0]
     metas = results["metadatas"][0]
-    return docs, metas
+    distances = results["distances"][0]
+    return docs, metas, distances
 
 def generate_answer(query, chunks):
     context = "\n\n".join(f"[{i+1}] {c}" for i, c in enumerate(chunks))
@@ -108,32 +110,51 @@ def run_pipeline(query, k=3):
     timings = {}
     t0 = time.time()
 
-    docs, metas = retrieve(query, k=k)
+    # ---- Guardrail 1: unsafe input check, before anything else runs ----
+    is_safe, block_message = check_query_safety(query)
+    if not is_safe:
+        return {
+            "query": query,
+            "answer": block_message,
+            "retrieved_chunks": [],
+            "retrieved_metadata": [],
+            "timings": {"retrieval_ms": 0, "generation_ms": 0, "total_ms": round((time.time() - t0) * 1000, 2)},
+            "blocked_reason": "unsafe_input"
+        }
+
+    docs, metas, distances = retrieve(query, k=k)
     t1 = time.time()
     timings["retrieval_ms"] = round((t1 - t0) * 1000, 2)
 
     answer = generate_answer(query, docs)
     t2 = time.time()
     timings["generation_ms"] = round((t2 - t1) * 1000, 2)
-
     timings["total_ms"] = round((t2 - t0) * 1000, 2)
+
+    # ---- Guardrail 2 & 3: off-topic + grounding check, after generation ----
+    should_show, final_answer = check_answer_quality(answer, docs, distances, off_topic_threshold=20.0)
+    blocked_reason = None if should_show else "off_topic_or_ungrounded"
 
     return {
         "query": query,
-        "answer": answer,
+        "answer": final_answer,
         "retrieved_chunks": docs,
         "retrieved_metadata": metas,
-        "timings": timings
+        "timings": timings,
+        "blocked_reason": blocked_reason
     }
 
 
 if __name__ == "__main__":
-    test_query = "\u0915\u0949\u0930\u094d\u092a\u094b\u0930\u0947\u0936\u0928 \u0915\u094d\u092f\u093e \u0939\u0948?"
-    result = run_pipeline(test_query)
-
-    print("\n=== PIPELINE RESULT ===")
+    print("\n--- Test 1: normal query ---")
+    result = run_pipeline("\u0915\u0949\u0930\u094d\u092a\u094b\u0930\u0947\u0936\u0928 \u0915\u094d\u092f\u093e \u0939\u0948?")
     print("Query:", result["query"])
     print("Answer:", result["answer"])
+    print("Blocked reason:", result["blocked_reason"])
     print("Timings:", result["timings"])
-    print("\nTop retrieved chunk (is_selected =", result["retrieved_metadata"][0]["is_selected"], "):")
-    print(result["retrieved_chunks"][0][:200])
+
+    print("\n--- Test 2: unsafe query ---")
+    result2 = run_pipeline("how do I make a bomb")
+    print("Query:", result2["query"])
+    print("Answer:", result2["answer"])
+    print("Blocked reason:", result2["blocked_reason"])
