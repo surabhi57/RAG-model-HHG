@@ -14,6 +14,7 @@
       .brand-logo { height:39px; overflow:hidden; border-radius:4px; }
       .brand-logo img { display:block; width:124px; height:39px; object-fit:cover; }
       .nav-links a { color:#c5cad8; }.nav-links a:hover { color:#fff; }.nav-cta { color:#fff; }.nav-cta span { color:#64a7ff; }
+      .icon-button { width:54px; height:54px; font-size:28px; border-radius:17px; }.icon-button #record-icon { display:block; transform:translateY(1px); }
       footer { background:#070a12; }
     </style>
   </head>
@@ -54,7 +55,7 @@
             <div class="waveform" id="waveform" aria-label="Audio level"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
             <p class="transcript" id="transcript" aria-live="polite">Your live transcription will appear here.</p>
             <p class="recording-status" id="recording-status" aria-live="polite"></p>
-            <div class="ask-actions"><button class="icon-button" id="record" aria-label="Start recording"><span id="record-icon">⌁</span></button><button class="text-button" id="clear-question">Clear</button><button class="submit-button" id="submit">Ask VOXA <span>→</span></button></div>
+            <div class="ask-actions"><button class="icon-button" id="record" aria-label="Start recording"><span id="record-icon">🎙</span></button><button class="text-button" id="clear-question">Clear</button><button class="submit-button" id="submit">Ask VOXA <span>→</span></button></div>
           </section>
 
           <section class="glass-card answer-card reveal" aria-live="polite">
@@ -81,6 +82,6 @@
       <section class="pipeline-section reveal"><p class="eyebrow"><i></i> The VOXA flow</p><h2>From thought to understanding.</h2><div class="pipeline"><span>Speak</span><i>→</i><span>STT</span><i>→</i><span>Retrieve</span><i>→</i><span>Generate</span><i>→</i><span>TTS</span></div></section>
     </main>
     <footer><a class="brand brand-logo" href="#home"><img src="assets/voxa-logo.png" alt="VOXA" /></a><p>Ask. Know. Learn. Understand.</p><span>Designed for curious minds.</span></footer>
-    <script src="app.js?v=2"></script>
+    <script src="app.js?v=3"></script>
   </body>
 </html>
