@@ -1,200 +1,320 @@
 {
-  "num_queries": 18,
+  "num_queries": 30,
   "retrieval_ms": {
-    "p50": 62.63,
-    "p70": 67.14,
-    "p100": 74.18
+    "p50": 47.22,
+    "p70": 50.56,
+    "p100": 88.57
   },
   "generation_ms": {
-    "p50": 5730.39,
-    "p70": 23089.8,
-    "p100": 32263.91
+    "p50": 742.04,
+    "p70": 986.74,
+    "p100": 75000.58
   },
   "total_ms": {
-    "p50": 5797.9,
-    "p70": 23160.55,
-    "p100": 32325.46
+    "p50": 785.9,
+    "p70": 1024.08,
+    "p100": 75039.67
   },
   "raw_results": [
     {
       "query": "कॉर्पोरेशन क्या है?",
-      "answer": "एक निगम (कॉर्पोरेशन) एक कंपनी या व्यक्तियों का समूह है जो कानून द्वारा एक एकल इकाई (कानूनी रूप से एक व्यक्ति) के रूप में कार्य करने के लिए अधिकृत और मान्यता प्राप्त है। इसका अपने सदस्यों के अस्तित्व से स्वतंत्र एक निरंतर अस्तित्व होता है, और इसकी शक्तियाँ तथा दायित्व इसके सदस्यों से अलग होते हैं।",
+      "answer": "कॉर्पोरेशन (निगम) एक कंपनी या लोगों का समूह है जो एक एकल इकाई (कानूनी रूप से एक व्यक्ति) के रूप में कार्य करने के लिए अधिकृत है और कानून में इस तरह से मान्यता प्राप्त है। इसकी परिभाषा के अनुसार, यह व्यक्तियों का एक समूह है, जो कानून द्वारा या कानून के अधिकार के तहत बनाया गया है, जिसका एक निरंतर अस्तित्व है जो इसके सदस्यों के अस्तित्व से स्वतंत्र है, और शक्तियाँ और दायित्व इसके सदस्यों से अलग हैं।",
       "timings": {
-        "retrieval_ms": 54.88,
-        "generation_ms": 29738.49,
-        "total_ms": 29793.38
+        "retrieval_ms": 28.26,
+        "generation_ms": 1088.88,
+        "total_ms": 1117.14
       },
       "top_chunk_is_selected": 1
     },
     {
       "query": "रेचल कार्सन ने क्यों एक दायित्व बर्दाश्त करने के लिए लिखा",
-      "answer": "Mujhe is jaankari ke aadhar par uttar nahi pata.",
+      "answer": "Mujhe is jaankari ke aadhar par uttar nahi pata. (I do not have enough information to answer this.)",
       "timings": {
-        "retrieval_ms": 70.72,
-        "generation_ms": 23734.54,
-        "total_ms": 23805.26
+        "retrieval_ms": 51.97,
+        "generation_ms": 2509.92,
+        "total_ms": 2561.89
       },
       "top_chunk_is_selected": 0
     },
     {
       "query": "पोटेशियम में कम खाद्य पदार्थों का चार्ट।",
-      "answer": "Mujhe is jaankari ke aadhar par uttar nahi pata.",
+      "answer": "Mujhe is jaankari ke aadhar par uttar nahi pata. (I do not have enough information to answer this.)",
       "timings": {
-        "retrieval_ms": 61.55,
-        "generation_ms": 32263.91,
-        "total_ms": 32325.46
+        "retrieval_ms": 63.28,
+        "generation_ms": 8103.94,
+        "total_ms": 8167.22
       },
       "top_chunk_is_selected": 0
     },
     {
       "query": "मालवाहक जहाज़ के नीचे की तरफ",
-      "answer": "Mujhe is jaankari ke aadhar par uttar nahi pata.",
+      "answer": "Mujhe is jaankari ke aadhar par uttar nahi pata. (I do not have enough information to answer this.)",
       "timings": {
-        "retrieval_ms": 47.41,
-        "generation_ms": 4221.05,
-        "total_ms": 4268.46
+        "retrieval_ms": 40.16,
+        "generation_ms": 1905.64,
+        "total_ms": 1945.8
       },
       "top_chunk_is_selected": 0
     },
     {
       "query": "ईमानदारी या सच्चाई की परिभाषा",
-      "answer": "संदर्भ के अनुसार, ईमानदारी की परिभाषा निम्नलिखित है:\n\n1. ईमानदार होने की गुणवत्ता या स्थिति।\n2. सच्चाई और कुछ न छिपाना।\n3. निष्पक्षता।\n4. गुण या सम्मान।",
+      "answer": "ईमानदार होने की गुणवत्ता, सच्चाई और कुछ न छिपाते हुए, या ईमानदार होने की स्थिति।",
       "timings": {
-        "retrieval_ms": 65.87,
-        "generation_ms": 27740.08,
-        "total_ms": 27805.94
+        "retrieval_ms": 22.85,
+        "generation_ms": 740.49,
+        "total_ms": 763.34
       },
       "top_chunk_is_selected": 0
     },
     {
       "query": "लिंकन में अब वायुमंडलीय दबाव क्या है?",
-      "answer": "Mujhe is jaankari ke aadhar par uttar nahi pata.",
+      "answer": "Mujhe is jaankari ke aadhar par uttar nahi pata. (I do not have enough information to answer this.)",
       "timings": {
-        "retrieval_ms": 55.44,
-        "generation_ms": 3500.77,
-        "total_ms": 3556.21
+        "retrieval_ms": 39.1,
+        "generation_ms": 6000.94,
+        "total_ms": 6040.04
       },
       "top_chunk_is_selected": 0
     },
     {
       "query": "स्ट्रूथर्स शहर स्कूल जिला राज्य संख्या",
-      "answer": "Mujhe is jaankari ke aadhar par uttar nahi pata.",
+      "answer": "Mujhe is jaankari ke aadhar par uttar nahi pata. (I do not have enough information to answer this.)",
       "timings": {
-        "retrieval_ms": 49.21,
-        "generation_ms": 30353.08,
-        "total_ms": 30402.28
+        "retrieval_ms": 43.83,
+        "generation_ms": 742.79,
+        "total_ms": 786.62
       },
       "top_chunk_is_selected": 0
     },
     {
       "query": "क्या चिकित्सीय मारिजुआना मदत करता है?",
-      "answer": "Mujhe is jaankari ke aadhar par uttar nahi pata.",
+      "answer": "कुछ सबूत हैं जो लोगों को रोचक लग सकते हैं कि कैनबिस रोगियों की मदद करता है।",
       "timings": {
-        "retrieval_ms": 74.18,
-        "generation_ms": 26679.28,
-        "total_ms": 26753.46
+        "retrieval_ms": 65.43,
+        "generation_ms": 6911.25,
+        "total_ms": 6976.68
       },
       "top_chunk_is_selected": 0
     },
     {
       "query": "फ्रैंक गिफोर्ड ने कितनी महिलाओं से शादी की",
-      "answer": "संदर्भ के अनुसार फ्रैंक गिफोर्ड की यह तीसरी शादी थी, यानी उन्होंने 3 महिलाओं से शादी की थी।",
+      "answer": "संधर्भ के अनुसार, फ्रैंक गिफोर्ड की यह तीसरी शादी थी (यानी उन्होंने तीन महिलाओं से शादी की थी)।",
       "timings": {
-        "retrieval_ms": 67.74,
-        "generation_ms": 5595.02,
-        "total_ms": 5662.75
+        "retrieval_ms": 36.46,
+        "generation_ms": 1220.92,
+        "total_ms": 1257.38
       },
       "top_chunk_is_selected": 0
     },
     {
       "query": "कितनी ट्रम्प प्रशासन की जांच चल रही हैं",
-      "answer": "Mujhe is jaankari ke aadhar par uttar nahi pata.",
+      "answer": "Mujhe is jaankari ke aadhar par uttar nahi pata. (I do not have enough information to answer this.)",
       "timings": {
-        "retrieval_ms": 51.63,
-        "generation_ms": 3972.94,
-        "total_ms": 4024.58
+        "retrieval_ms": 88.57,
+        "generation_ms": 656.32,
+        "total_ms": 744.89
       },
       "top_chunk_is_selected": 0
     },
     {
       "query": "वॉव पर अनुयायियों को कैसे इकट्ठा किया जाए, इसका मार्गदर्शक",
-      "answer": "संदर्भ के अनुसार, अनुयायियों को इकट्ठा करने के तरीके निम्नलिखित हैं:\n\n1. टैवर्न या इन्स वाले खिलाड़ी गैरिसन बिल्डिंग (हॉर्ड) या लूनारफॉल इन (एलायंस) पर बात करके प्रत्येक सप्ताह एक अतिरिक्त अनुयायी कमा सकते हैं।\n2. अतिरिक्त अनुयायी प्राप्त करने के लिए अक्जाना या लिसा से बात करें और अपनी पसंद की विशेषता चुनें।",
+      "answer": "Mujhe is jaankari ke aadhar par uttar nahi pata. (I do not have enough information to answer this.)",
       "timings": {
-        "retrieval_ms": 70.93,
-        "generation_ms": 17287.19,
-        "total_ms": 17358.13
+        "retrieval_ms": 47.7,
+        "generation_ms": 678.0,
+        "total_ms": 725.7
       },
       "top_chunk_is_selected": 0
     },
     {
       "query": "ज़ेल्स कितने समय तक दूर रहना पड़ता है",
-      "answer": "Mujhe is jaankari ke aadhar par uttar nahi pata.",
+      "answer": "Mujhe is jaankari ke aadhar par uttar nahi pata. (I do not have enough information to answer this.)",
       "timings": {
-        "retrieval_ms": 63.71,
-        "generation_ms": 12081.33,
-        "total_ms": 12145.04
+        "retrieval_ms": 30.59,
+        "generation_ms": 692.74,
+        "total_ms": 723.33
       },
       "top_chunk_is_selected": 0
     },
     {
       "query": "प्रदूषण के कारण मानव आबादी कैसे बढ़ती है",
-      "answer": "Mujhe is jaankari ke aadhar par uttar nahi pata.",
+      "answer": "Mujhe is jaankari ke aadhar par uttar nahi pata. (I do not have enough information to answer this.)",
       "timings": {
-        "retrieval_ms": 69.49,
-        "generation_ms": 4172.85,
-        "total_ms": 4242.34
+        "retrieval_ms": 36.78,
+        "generation_ms": 1223.16,
+        "total_ms": 1259.94
       },
       "top_chunk_is_selected": 0
     },
     {
       "query": "एन.एच.एल. प्लेऑफ़ सीडिंग कैसे काम करती है",
-      "answer": "Mujhe is jaankari ke aadhar par uttar nahi pata.",
+      "answer": "Mujhe is jaankari ke aadhar par uttar nahi pata. (I do not have enough information to answer this.)",
       "timings": {
-        "retrieval_ms": 67.28,
-        "generation_ms": 5865.76,
-        "total_ms": 5933.04
+        "retrieval_ms": 42.02,
+        "generation_ms": 697.24,
+        "total_ms": 739.26
       },
       "top_chunk_is_selected": 0
     },
     {
       "query": "क्या गंदगी के कारण दाद होता है?",
-      "answer": "Mujhe is jaankari ke aadhar par uttar nahi pata.",
+      "answer": "Mujhe is jaankari ke aadhar par uttar nahi pata. (I do not have enough information to answer this.)",
       "timings": {
-        "retrieval_ms": 53.74,
-        "generation_ms": 4227.94,
-        "total_ms": 4281.67
+        "retrieval_ms": 39.09,
+        "generation_ms": 75000.58,
+        "total_ms": 75039.67
+      },
+      "top_chunk_is_selected": 0
+    },
+    {
+      "query": "एक ताज को फिर से बनाने की कीमत कितनी होती है",
+      "answer": "Mujhe is jaankari ke aadhar par uttar nahi pata. (I do not have enough information to answer this.)",
+      "timings": {
+        "retrieval_ms": 48.88,
+        "generation_ms": 643.29,
+        "total_ms": 692.17
+      },
+      "top_chunk_is_selected": 0
+    },
+    {
+      "query": "बैरल ओ स्लाइम क्या है?",
+      "answer": "बैरल ओ स्लाइम 24 पीसीओएसटी कलर्स पुट्टी गू गैग प्रैंक फन पार्टी फेवर्स जोक टॉयज़ है।",
+      "timings": {
+        "retrieval_ms": 42.06,
+        "generation_ms": 741.3,
+        "total_ms": 783.36
+      },
+      "top_chunk_is_selected": 0
+    },
+    {
+      "query": "बाज़ कितनी तेजी से यात्रा करता है",
+      "answer": "ईगल (बाज़) 30 से 55 मील प्रति घंटे की रफ्तार से उड़ते हैं और 100 मील प्रति घंटे से अधिक की रफ्तार से गोता लगाते हैं।",
+      "timings": {
+        "retrieval_ms": 46.74,
+        "generation_ms": 780.31,
+        "total_ms": 827.06
+      },
+      "top_chunk_is_selected": 0
+    },
+    {
+      "query": "स्टबहब टोल फ्री नंबर",
+      "answer": "स्टबहब का टोल-फ्री नंबर 866-788-2482 (या 1-866-788-2482) है।",
+      "timings": {
+        "retrieval_ms": 41.25,
+        "generation_ms": 942.96,
+        "total_ms": 984.2
+      },
+      "top_chunk_is_selected": 1
+    },
+    {
+      "query": "सौर शहर के पैनल कितना कि.डब्ल्यू उत्पादन करते हैं",
+      "answer": "Mujhe is jaankari ke aadhar par uttar nahi pata. (I do not have enough information to answer this.)",
+      "timings": {
+        "retrieval_ms": 48.22,
+        "generation_ms": 622.4,
+        "total_ms": 670.62
+      },
+      "top_chunk_is_selected": 0
+    },
+    {
+      "query": "पहली रक्षा नाक फ़िल्टर बिक्री संख्या",
+      "answer": "Mujhe is jaankari ke aadhar par uttar nahi pata. (I do not have enough information to answer this.)",
+      "timings": {
+        "retrieval_ms": 49.96,
+        "generation_ms": 669.36,
+        "total_ms": 719.32
+      },
+      "top_chunk_is_selected": 0
+    },
+    {
+      "query": "विंडोज 8 पर स्पष्ट डेस्कटॉप आइकन कैसे प्राप्त करें",
+      "answer": "Mujhe is jaankari ke aadhar par uttar nahi pata. (I do not have enough information to answer this.)",
+      "timings": {
+        "retrieval_ms": 48.38,
+        "generation_ms": 701.77,
+        "total_ms": 750.15
       },
       "top_chunk_is_selected": 0
     },
     {
       "query": "क्या डेल्टा बैंगलोर के लिए उड़ान भरता है?",
-      "answer": "हाँ, डेल्टा एयरलाइंस बैंगलोर और पेरिस के बीच साप्ताहिक रूप से 6 उड़ानें संचालित करता है।",
+      "answer": "Mujhe is jaankari ke aadhar par uttar nahi pata. (I do not have enough information to answer this.)",
       "timings": {
-        "retrieval_ms": 63.75,
-        "generation_ms": 4468.71,
-        "total_ms": 4532.46
+        "retrieval_ms": 72.32,
+        "generation_ms": 746.22,
+        "total_ms": 818.54
       },
       "top_chunk_is_selected": 0
     },
     {
       "query": "कैंटालूप को कितने समय तक परिपक्व होना है",
-      "answer": "Mujhe is jaankari ke aadhar par uttar nahi pata.",
+      "answer": "Mujhe is jaankari ke aadhar par uttar nahi pata. (I do not have enough information to answer this.)",
       "timings": {
-        "retrieval_ms": 44.56,
-        "generation_ms": 3978.14,
-        "total_ms": 4022.7
+        "retrieval_ms": 53.77,
+        "generation_ms": 695.26,
+        "total_ms": 749.04
       },
       "top_chunk_is_selected": 0
     },
     {
       "query": "परिवर्तक को परीक्षण पाइप से बदलने की लागत",
-      "answer": "Mujhe is jaankari ke aadhar par uttar nahi pata.",
+      "answer": "Mujhe is jaankari ke aadhar par uttar nahi pata. (I do not have enough information to answer this.)",
       "timings": {
-        "retrieval_ms": 58.6,
-        "generation_ms": 3943.82,
-        "total_ms": 4002.42
+        "retrieval_ms": 46.02,
+        "generation_ms": 692.01,
+        "total_ms": 738.02
       },
       "top_chunk_is_selected": 0
+    },
+    {
+      "query": "परिभाषा मनमानी है",
+      "answer": "मनमानी को किसी ऐसी चीज़ के रूप में परिभाषित किया जाता है जो निर्णय या सनक से निर्धारित होती है और किसी विशिष्ट कारण या नियम के लिए नहीं।",
+      "timings": {
+        "retrieval_ms": 43.7,
+        "generation_ms": 804.9,
+        "total_ms": 848.6
+      },
+      "top_chunk_is_selected": 0
+    },
+    {
+      "query": "स्नातक डिग्री की डिग्री के लिए समय की गणना कैसे की जाती है",
+      "answer": "दिए गए संदर्भ के अनुसार, स्नातक स्तर के प्रमुख विषयों के लिए औसत समय-से-डिग्री मीट्रिक में बीते हुए कैलेंडर वर्ष, डिग्री के लिए क्रेडिट और डिग्री के लिए नामांकित शब्द शामिल हैं।",
+      "timings": {
+        "retrieval_ms": 64.0,
+        "generation_ms": 709.04,
+        "total_ms": 773.04
+      },
+      "top_chunk_is_selected": 0
+    },
+    {
+      "query": "किन्ना पारस्परिक आदान-प्रदान होता है और इसकी समस्याएं क्या हैं",
+      "answer": "Mujhe is jaankari ke aadhar par uttar nahi pata. (I do not have enough information to answer this.)",
+      "timings": {
+        "retrieval_ms": 67.67,
+        "generation_ms": 781.43,
+        "total_ms": 849.09
+      },
+      "top_chunk_is_selected": 0
+    },
+    {
+      "query": "क्या रोब्लॉक्स में पावर रेंजर इवेंट होता था?",
+      "answer": "Mujhe is jaankari ke aadhar par uttar nahi pata. (I do not have enough information to answer this.)",
+      "timings": {
+        "retrieval_ms": 63.93,
+        "generation_ms": 721.26,
+        "total_ms": 785.18
+      },
+      "top_chunk_is_selected": 0
+    },
+    {
+      "query": "जलवायु मौसम का अध्ययन",
+      "answer": "Mujhe is jaankari ke aadhar par uttar nahi pata. (I do not have enough information to answer this.)",
+      "timings": {
+        "retrieval_ms": 49.08,
+        "generation_ms": 635.74,
+        "total_ms": 684.82
+      },
+      "top_chunk_is_selected": 1
     }
   ]
 }

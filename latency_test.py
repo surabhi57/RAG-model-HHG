@@ -1,6 +1,7 @@
 ﻿import json
 import numpy as np
 import pandas as pd
+import time
 from huggingface_hub import hf_hub_download
 
 from pipeline import run_pipeline, collection
@@ -21,6 +22,7 @@ print(f"Running {len(test_queries)} test queries through the full pipeline...\n"
 results = []
 for i, q in enumerate(test_queries):
     print(f"[{i+1}/{len(test_queries)}] {q}")
+    time.sleep(4)
     try:
         result = run_pipeline(q)
         results.append(result)
