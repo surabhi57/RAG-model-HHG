@@ -101,7 +101,7 @@ def generate_answer(query, chunks):
         f"Context:\n{context}\n\nQuestion: {query}\n\nAnswer:"
     )
     response = gemini_client.models.generate_content(
-        model="gemini-3.6-flash",
+        model="gemini-3.5-flash-lite",
         contents=prompt
     )
     return response.text.strip()
