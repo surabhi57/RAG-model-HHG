@@ -18,6 +18,11 @@ print("Setting up pipeline (this happens once)...")
 embed_model = SentenceTransformer("paraphrase-multilingual-MiniLM-L12-v2")
 gemini_client = genai.Client(api_key=os.environ["GEMINI_API_KEY"])
 
+REFUSAL_EN = "I do not have enough information to answer this."
+REFUSAL_HI = "Mujhe is jaankari ke aadhar par uttar nahi pata."
+UNSAFE_EN = "I cannot help with this type of request."
+UNSAFE_HI = "Main is prakar ke prashn ka uttar nahi de sakta."
+
 def build_index(sample_size=100):
     path = hf_hub_download(
         repo_id="ai4bharat/MSMARCO-XI",
@@ -110,12 +115,13 @@ def translate_to_hindi(text):
 def generate_answer(query, chunks):
     context = "\n\n".join(f"[{i+1}] {c}" for i, c in enumerate(chunks))
     answer_language = "Hindi" if is_devanagari(query) else "English"
+    refusal_text = REFUSAL_HI if answer_language == "Hindi" else REFUSAL_EN
     prompt = (
         "You are a helpful assistant answering questions using ONLY the context provided below.\n\n"
         "Rules:\n"
         "- Answer only using information from the context. Do not use outside knowledge.\n"
-        "- If the context does not contain enough information to answer, respond exactly with: "
-        "\"Mujhe is jaankari ke aadhar par uttar nahi pata.\"\n"
+        f"- If the context does not contain enough information to answer, respond exactly with: "
+        f"\"{refusal_text}\"\n"
         f"- The context below may be in Hindi even if the question is in English. Regardless of the "
         f"context's language, you MUST write your answer in {answer_language}, since that is the "
         "language the question was asked in.\n"
@@ -132,12 +138,14 @@ def run_pipeline(query, k=3):
     timings = {}
     t0 = time.time()
 
+    query_is_hindi = is_devanagari(query)
+
     # ---- Guardrail 1: unsafe input check, before anything else runs ----
-    is_safe, block_message = check_query_safety(query)
+    is_safe, _ = check_query_safety(query)
     if not is_safe:
         return {
             "query": query,
-            "answer": block_message,
+            "answer": UNSAFE_HI if query_is_hindi else UNSAFE_EN,
             "retrieved_chunks": [],
             "retrieved_metadata": [],
             "timings": {"retrieval_ms": 0, "generation_ms": 0, "total_ms": round((time.time() - t0) * 1000, 2)},
@@ -147,7 +155,6 @@ def run_pipeline(query, k=3):
     # ---- Translate non-Hindi queries before retrieval, since the index is Hindi-only ----
     # The original `query` is preserved for answer generation, so the LLM still
     # answers in the language the question was asked in.
-    query_is_hindi = is_devanagari(query)
     retrieval_query = query if query_is_hindi else translate_to_hindi(query)
 
     docs, metas, distances = retrieve(retrieval_query, k=k)
@@ -169,10 +176,10 @@ def run_pipeline(query, k=3):
     timings["total_ms"] = round((t2 - t0) * 1000, 2)
 
     # ---- Guardrail 2 & 3: off-topic + grounding check ----
-    should_show, checked_message = check_answer_quality(
+    should_show, _ = check_answer_quality(
         grounding_check_text, docs, distances, off_topic_threshold=20.0
     )
-    final_answer = answer if should_show else checked_message
+    final_answer = answer if should_show else (REFUSAL_HI if query_is_hindi else REFUSAL_EN)
     blocked_reason = None if should_show else "off_topic_or_ungrounded"
 
     return {
@@ -199,9 +206,15 @@ if __name__ == "__main__":
     print("Answer:", result2["answer"])
     print("Blocked reason:", result2["blocked_reason"])
 
-    print("\n--- Test 3: English query, should translate + ground correctly, answer stays English ---")
-    result3 = run_pipeline("What is the definition of honesty?")
+    print("\n--- Test 3: English out-of-dataset query, should refuse IN ENGLISH ---")
+    result3 = run_pipeline("What is a RAG pipeline?")
     print("Query:", result3["query"])
     print("Answer:", result3["answer"])
     print("Blocked reason:", result3["blocked_reason"])
-    print("Timings:", result3["timings"])
+
+    print("\n--- Test 4: English in-dataset query ---")
+    result4 = run_pipeline("What is the definition of honesty?")
+    print("Query:", result4["query"])
+    print("Answer:", result4["answer"])
+    print("Blocked reason:", result4["blocked_reason"])
+    print("Timings:", result4["timings"])

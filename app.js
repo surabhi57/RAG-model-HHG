@@ -12,8 +12,52 @@ function displayError(message) { $('answer-empty').classList.remove('hidden'); $
 function resetAnswerEmpty() { $('answer-empty').innerHTML='<div class="sparkle">✦</div><p>Your answer will appear here.<br />Ask with your voice or keyboard.</p>'; }
 function setLoading(message='Finding a grounded answer…') { $('answer-empty').classList.remove('hidden'); $('answer-empty').innerHTML=`<div class="sparkle">✦</div><p>${message}</p>`; $('answer-content').classList.add('hidden'); $('sources').classList.add('hidden'); $('answer-state').textContent='Thinking…'; submitButton.disabled=true; submitButton.textContent='Asking…'; }
 function finishLoading(){submitButton.disabled=false;submitButton.innerHTML='Ask VOXA <span>→</span>';}
-async function askText(text) { setLoading(); try { const response = await fetch(`${API_BASE_URL}/api/query`, {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({query:text,top_k:5,rerank:false})}); const data=await readResponse(response); showAnswer({...data,query:text}); } catch (error) { displayError(error.message || `Couldn’t reach VOXA’s backend at ${API_BASE_URL}.`); } finally { finishLoading(); } }
-async function askVoice(blob) { setLoading('Transcribing your voice…'); try { const form=new FormData(); form.append('audio',blob,'voxa-recording.webm'); const response=await fetch(`${API_BASE_URL}/api/transcribe`, {method:'POST',body:form}); const data=await readResponse(response); const text=data.text||data.transcript||data.query||''; if(!text)throw new Error('The transcription service returned no spoken text.'); question.value=text; transcript.textContent=`Transcribed: ${text}`; await askText(text); } catch(error) { displayError(error.message || `Voice request failed. Check microphone access and that VOXA’s backend is running at ${API_BASE_URL}.`); } finally { finishLoading(); } }
+
+async function askText(text) {
+  setLoading();
+  try {
+    const response = await fetch(`${API_BASE_URL}/ask`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'ngrok-skip-browser-warning': 'true'
+      },
+      body: JSON.stringify({ query: text, k: 3 })
+    });
+    const data = await readResponse(response);
+    showAnswer({ ...data, query: text });
+  } catch (error) {
+    displayError(error.message || `Couldn’t reach VOXA’s backend at ${API_BASE_URL}.`);
+  } finally {
+    finishLoading();
+  }
+}
+
+async function askVoice(blob) {
+  setLoading('Transcribing your voice…');
+  try {
+    const form = new FormData();
+    form.append('file', blob, 'voxa-recording.webm');
+    const response = await fetch(`${API_BASE_URL}/ask-voice`, {
+      method: 'POST',
+      headers: {
+        'ngrok-skip-browser-warning': 'true'
+      },
+      body: form
+    });
+    const data = await readResponse(response);
+    const text = data.query || data.text || data.transcript || '';
+    if (!text) throw new Error('The transcription service returned no spoken text.');
+    question.value = text;
+    transcript.textContent = `Transcribed: ${text}`;
+    showAnswer(data);
+  } catch (error) {
+    displayError(error.message || `Voice request failed. Check microphone access and that VOXA’s backend is running at ${API_BASE_URL}.`);
+  } finally {
+    finishLoading();
+  }
+}
+
 async function readResponse(response){let data;try{data=await response.json()}catch{throw new Error('Invalid server response')}if(!response.ok){const detail=data.detail;throw new Error(typeof detail==='string'?detail:(detail?.message||detail?.code||'Request failed'));}return data;}
 function showAnswer(data) { stopSpeaking(); const answer=data.answer||data.response||data.result?.answer||'The backend returned no answer.'; $('answer-empty').classList.add('hidden'); $('answer-content').classList.remove('hidden'); $('answer-text').textContent=answer; $('answer-state').textContent=data.blocked_reason?'Safety response':'Grounded answer'; const meta=[]; if(data.blocked_reason)meta.push(`Status: ${data.blocked_reason}`); if(data.confidence !== undefined)meta.push(`Confidence: ${Math.round(data.confidence*100)}%`); if(data.timings?.total_ms !== undefined)meta.push(`${Math.round(data.timings.total_ms)} ms`); if(data.latency_ms !== undefined)meta.push(`${Math.round(data.latency_ms)} ms`); $('answer-meta').innerHTML=meta.map(x=>`<span>${x}</span>`).join(''); const sources=data.retrieved_chunks||data.sources||data.context||data.retrieved_context||data.result?.sources; if(Array.isArray(sources)&&sources.length){$('sources').classList.remove('hidden');$('sources-list').innerHTML=sources.map((item,i)=>`<div class="source-item"><b>${i+1}.</b> ${typeof item==='string'?item:(item.text||item.content||JSON.stringify(item))}</div>`).join('');}else $('sources').classList.add('hidden'); $('speak-answer').disabled=false;$('copy-answer').disabled=false;$('clear-answer').disabled=false;$('ask-another').classList.remove('hidden'); saveHistory(data.query||question.value,answer); }
 function saveHistory(query,answer){if(!query)return;history=[{query,answer,time:Date.now()},...history.filter(x=>x.query!==query)].slice(0,6);localStorage.setItem('voxa-history',JSON.stringify(history));renderHistory();}

@@ -51,13 +51,12 @@ def check_query_safety(query: str):
 
 
 def check_answer_quality(answer: str, retrieved_chunks: list, retrieval_distances: list,
-                          off_topic_threshold=1.0, grounding_threshold=0.2):
+                          off_topic_threshold=1.0, grounding_threshold=0.2,
+                          skip_grounding_check=False):
     if is_off_topic(retrieval_distances, threshold=off_topic_threshold):
         return False, REFUSAL_MESSAGE
-
-    if not is_grounded(answer, retrieved_chunks, min_overlap_ratio=grounding_threshold):
+    if not skip_grounding_check and not is_grounded(answer, retrieved_chunks, min_overlap_ratio=grounding_threshold):
         return False, REFUSAL_MESSAGE
-
     return True, answer
 
 
