@@ -1,19 +1,86 @@
 <!doctype html>
-<html>
-	<head>
-		<meta charset="utf-8" />
-		<meta name="viewport" content="width=device-width" />
-		<title>My static Space</title>
-		<link rel="stylesheet" href="style.css" />
-	</head>
-	<body>
-		<div class="card">
-			<h1>Welcome to your static Space!</h1>
-			<p>You can modify this app directly by editing <i>index.html</i> in the Files and versions tab.</p>
-			<p>
-				Also don't forget to check the
-				<a href="https://huggingface.co/docs/hub/spaces" target="_blank">Spaces documentation</a>.
-			</p>
-		</div>
-	</body>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#fff8fc" />
+    <title>VOXA — Ask. Know. Learn. Understand.</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css?v=2" />
+    <style>
+      .navbar { background:#070a12; border-bottom:1px solid rgba(255,255,255,.08); box-shadow:0 1px 0 rgba(255,255,255,.05); }
+      .brand-logo { height:39px; overflow:hidden; border-radius:4px; }
+      .brand-logo img { display:block; width:124px; height:39px; object-fit:cover; }
+      .nav-links a { color:#c5cad8; }.nav-links a:hover { color:#fff; }.nav-cta { color:#fff; }.nav-cta span { color:#64a7ff; }
+      footer { background:#070a12; }
+    </style>
+  </head>
+  <body>
+    <nav class="navbar">
+      <a class="brand brand-logo" href="#home" aria-label="VOXA home"><img src="assets/voxa-logo.png" alt="VOXA" /></a>
+      <div class="nav-links"><a href="#ask">Ask</a><a href="#features">Features</a></div>
+      <a class="nav-cta" href="#ask">Start asking <span>↗</span></a>
+    </nav>
+
+    <main>
+      <section class="hero" id="home">
+        <div class="orb orb-pink"></div><div class="orb orb-blue"></div>
+        <div class="hero-copy reveal">
+          <p class="eyebrow"><i></i> Your intelligent voice companion</p>
+          <h1>Knowledge, at the<br /><em>speed of your voice.</em></h1>
+          <p class="hero-tagline">Your voice asks. Knowledge answers.</p>
+          <p class="hero-description">VOXA turns questions into clear, grounded answers — naturally, in the language you speak.</p>
+          <div class="hero-actions"><a class="primary-button" href="#ask">Start Asking <span>→</span></a><span class="language-cycle">Now speaking <strong id="rotating-language">English</strong></span></div>
+        </div>
+        <div class="voice-visual reveal" aria-label="Animated voice waveform" role="img">
+          <div class="visual-glow"></div>
+          <div class="voice-ring ring-one"></div><div class="voice-ring ring-two"></div>
+          <div class="voice-core"><span class="mic-icon">⌁</span></div>
+          <div class="bars hero-bars" aria-hidden="true"></div>
+          <span class="listening-pill"><b></b> Ready to listen</span>
+        </div>
+        <div class="scroll-note">SCROLL TO EXPLORE <span></span></div>
+      </section>
+
+      <section class="ask-section" id="ask">
+        <div class="section-heading reveal"><p class="eyebrow"><i></i> Ask anything</p><h2>Speak freely. <em>Learn deeply.</em></h2><p>Use your voice or type a question. VOXA connects directly to your knowledge backend.</p></div>
+        <div class="workspace">
+          <section class="glass-card ask-card reveal">
+            <div class="card-title"><div><span class="step">01</span><h3>Ask</h3></div><select id="language" aria-label="Recognition language"><option value="en-IN">English</option><option value="hi-IN">हिन्दी</option><option value="kn-IN">ಕನ್ನಡ</option></select></div>
+            <label class="input-label" for="question">YOUR QUESTION</label>
+            <textarea id="question" placeholder="Type your question here, or use the microphone…" rows="4"></textarea>
+            <div class="waveform" id="waveform" aria-label="Audio level"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+            <p class="transcript" id="transcript" aria-live="polite">Your live transcription will appear here.</p>
+            <p class="recording-status" id="recording-status" aria-live="polite"></p>
+            <div class="ask-actions"><button class="icon-button" id="record" aria-label="Start recording"><span id="record-icon">⌁</span></button><button class="text-button" id="clear-question">Clear</button><button class="submit-button" id="submit">Ask VOXA <span>→</span></button></div>
+          </section>
+
+          <section class="glass-card answer-card reveal" aria-live="polite">
+            <div class="card-title"><div><span class="step">02</span><h3>Answer</h3></div><span class="answer-state" id="answer-state">Waiting for a question</span></div>
+            <div class="answer-empty" id="answer-empty"><div class="sparkle">✦</div><p>Your answer will appear here.<br />Ask with your voice or keyboard.</p></div>
+            <div class="answer-content hidden" id="answer-content"><p id="answer-text"></p><div class="answer-meta" id="answer-meta"></div></div>
+            <div class="sources hidden" id="sources"><p class="input-label">RETRIEVED CONTEXT</p><div id="sources-list"></div></div>
+            <div class="answer-actions"><button class="small-action" id="speak-answer" disabled>▷ <span>Listen</span></button><button class="small-action" id="copy-answer" disabled>⧉ Copy</button><button class="small-action muted" id="clear-answer" disabled>Clear</button><button class="ask-another hidden" id="ask-another">Ask another <span>→</span></button></div>
+          </section>
+        </div>
+        <aside class="history-panel reveal"><div><span class="history-title">Recent questions</span><span id="history-count">0 saved</span></div><div id="history-list"><p class="history-empty">Your question history stays in this browser.</p></div></aside>
+      </section>
+
+      <section class="features" id="features">
+        <div class="feature-intro reveal"><p class="eyebrow"><i></i> Built for understanding</p><h2>Thoughtful technology.<br /><em>Human conversation.</em></h2></div>
+        <div class="feature-grid">
+          <article class="feature-card large reveal"><span class="feature-icon">◌</span><h3>Voice-first, naturally</h3><p>Ask in your own words. VOXA captures voice, transcribes it, and gets to the point.</p><div class="mini-waves"></div></article>
+          <article class="feature-card lavender reveal"><span class="feature-icon">⌘</span><h3>Grounded by RAG</h3><p>Answers are generated from retrieved knowledge, not guesswork.</p></article>
+          <article class="feature-card blue reveal"><span class="feature-icon">अ</span><h3>Multilingual by design</h3><p>English, Hindi, and Kannada — one conversation, more ways to understand.</p></article>
+          <article class="feature-card wide reveal"><div><span class="feature-icon">↗</span><h3>Transparent answers</h3><p>When the backend makes context available, VOXA brings it forward alongside the answer.</p></div><div class="source-lines"><b></b><b></b><b></b></div></article>
+        </div>
+      </section>
+
+      <section class="pipeline-section reveal"><p class="eyebrow"><i></i> The VOXA flow</p><h2>From thought to understanding.</h2><div class="pipeline"><span>Speak</span><i>→</i><span>STT</span><i>→</i><span>Retrieve</span><i>→</i><span>Generate</span><i>→</i><span>TTS</span></div></section>
+    </main>
+    <footer><a class="brand brand-logo" href="#home"><img src="assets/voxa-logo.png" alt="VOXA" /></a><p>Ask. Know. Learn. Understand.</p><span>Designed for curious minds.</span></footer>
+    <script src="app.js?v=2"></script>
+  </body>
 </html>
