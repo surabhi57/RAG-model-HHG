@@ -9,7 +9,22 @@ function setupBars() { document.querySelectorAll('.bars').forEach(container => {
 function languageName() { return $('language').selectedOptions[0].text; }
 function setRecording(next) { recording=next; recordButton.classList.toggle('is-recording',next); document.querySelector('.ask-card').classList.toggle('recording',next); $('record-icon').textContent=next?'■':'🎙'; $('recording-status').textContent=next?`Recording in ${languageName()} — tap to stop.`:''; }
 function displayError(message) { $('answer-empty').classList.remove('hidden'); $('answer-empty').innerHTML=`<div class="sparkle">!</div><p>${message}</p>`; $('answer-content').classList.add('hidden'); $('answer-state').textContent='Unable to answer'; }
+
 function resetAnswerEmpty() { $('answer-empty').innerHTML='<div class="sparkle">✦</div><p>Your answer will appear here.<br />Ask with your voice or keyboard.</p>'; }
+
+function clearAnswer() {
+  stopSpeaking();
+  resetAnswerEmpty();
+  $('answer-empty').classList.remove('hidden');
+  $('answer-content').classList.add('hidden');
+  $('sources').classList.add('hidden');
+  $('answer-state').textContent = 'Waiting for a question';
+  $('speak-answer').disabled = true;
+  $('copy-answer').disabled = true;
+  $('clear-answer').disabled = true;
+  $('ask-another').classList.add('hidden');
+}
+
 function setLoading(message='Finding a grounded answer…') { $('answer-empty').classList.remove('hidden'); $('answer-empty').innerHTML=`<div class="sparkle">✦</div><p>${message}</p>`; $('answer-content').classList.add('hidden'); $('sources').classList.add('hidden'); $('answer-state').textContent='Thinking…'; submitButton.disabled=true; submitButton.textContent='Asking…'; }
 function finishLoading(){submitButton.disabled=false;submitButton.innerHTML='Ask VOXA <span>→</span>';}
 
