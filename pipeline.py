@@ -115,13 +115,18 @@ def translate_to_hindi(text):
 def generate_answer(query, chunks):
     context = "\n\n".join(f"[{i+1}] {c}" for i, c in enumerate(chunks))
     answer_language = "Hindi" if is_devanagari(query) else "English"
-    refusal_text = REFUSAL_HI if answer_language == "Hindi" else REFUSAL_EN
+    refusal_line = (
+        'If the context does not contain enough information to answer, respond exactly with: '
+        '"Mujhe is jaankari ke aadhar par uttar nahi pata."'
+        if answer_language == "Hindi" else
+        'If the context does not contain enough information to answer, respond exactly with: '
+        '"I do not have enough information to answer this."'
+    )
     prompt = (
         "You are a helpful assistant answering questions using ONLY the context provided below.\n\n"
         "Rules:\n"
         "- Answer only using information from the context. Do not use outside knowledge.\n"
-        f"- If the context does not contain enough information to answer, respond exactly with: "
-        f"\"{refusal_text}\"\n"
+        f"- {refusal_line}\n"
         f"- The context below may be in Hindi even if the question is in English. Regardless of the "
         f"context's language, you MUST write your answer in {answer_language}, since that is the "
         "language the question was asked in.\n"
