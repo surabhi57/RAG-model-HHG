@@ -171,7 +171,7 @@ def generate_answer(query, chunks):
     )
     return response.text.strip()
 
-def run_pipeline(query, k=3):
+def run_pipeline(query, k=6):
     timings = {}
     t0 = time.time()
 

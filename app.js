@@ -37,7 +37,7 @@ async function askText(text) {
         'Content-Type': 'application/json',
         'ngrok-skip-browser-warning': 'true'
       },
-      body: JSON.stringify({ query: text, k: 3 })
+      body: JSON.stringify({ query: text, k: 6 })
     });
     const data = await readResponse(response);
     showAnswer({ ...data, query: text });
@@ -78,7 +78,7 @@ function showAnswer(data) { stopSpeaking(); const answer=data.answer||data.respo
 function saveHistory(query,answer){if(!query)return;history=[{query,answer,time:Date.now()},...history.filter(x=>x.query!==query)].slice(0,6);localStorage.setItem('voxa-history',JSON.stringify(history));renderHistory();}
 function renderHistory(){$('history-count').textContent=`${history.length} saved`;$('history-list').innerHTML=history.length?history.map((item,i)=>`<button class="history-item" data-history="${i}" title="${item.query}">${item.query}</button>`).join(''):'<p class="history-empty">Your question history stays in this browser.</p>';document.querySelectorAll('[data-history]').forEach(b=>b.onclick=()=>{question.value=history[b.dataset.history].query;question.focus();});}
 function updateListenButton(isSpeaking){const button=$('speak-answer');button.innerHTML=isSpeaking?'■ <span>Stop</span>':'▷ <span>Listen</span>';button.setAttribute('aria-pressed',String(isSpeaking));}
-function speechLanguage(){return $('language').value||'en-IN';}
+function speechLanguage(){return /[\u0900-\u097F]/.test($('answer-text').textContent)?'hi-IN':'en-IN';}
 function selectVoice(language){const voices=window.speechSynthesis.getVoices();if(!voices.length)return null;const root=language.split('-')[0].toLowerCase();return voices.find(voice=>voice.lang.toLowerCase()===language.toLowerCase())||voices.find(voice=>voice.lang.toLowerCase().startsWith(`${root}-`))||voices.find(voice=>voice.default)||voices[0];}
 function stopSpeaking(){if(!('speechSynthesis' in window))return;window.speechSynthesis.cancel();activeUtterance=null;updateListenButton(false);}
 function speakCurrentAnswer(){const text=$('answer-text').textContent.trim();if(!text||!('speechSynthesis'in window))return;if(window.speechSynthesis.speaking||window.speechSynthesis.pending){stopSpeaking();return;}const utterance=new SpeechSynthesisUtterance(text);const language=speechLanguage();utterance.lang=language;const voice=selectVoice(language);if(voice)utterance.voice=voice;utterance.onstart=()=>{activeUtterance=utterance;updateListenButton(true);};utterance.onend=()=>{if(activeUtterance===utterance){activeUtterance=null;updateListenButton(false);}};utterance.onerror=()=>{if(activeUtterance===utterance){activeUtterance=null;updateListenButton(false);}};activeUtterance=utterance;updateListenButton(true);window.speechSynthesis.speak(utterance);}
