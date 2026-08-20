@@ -1,6 +1,7 @@
 import time
 import re
 import os
+import json
 import pandas as pd
 import chromadb
 from huggingface_hub import hf_hub_download
@@ -23,7 +24,28 @@ REFUSAL_HI = "Mujhe is jaankari ke aadhar par uttar nahi pata."
 UNSAFE_EN = "I cannot help with this type of request."
 UNSAFE_HI = "Main is prakar ke prashn ka uttar nahi de sakta."
 
+CACHE_DIR = "chroma_storage"
+CACHE_MARKER = os.path.join(CACHE_DIR, "index_marker.json")
+
 def build_index(sample_size=100):
+    os.makedirs(CACHE_DIR, exist_ok=True)
+    client = chromadb.PersistentClient(path=CACHE_DIR)
+
+    # ---- Check if a valid cached index already exists for this sample_size ----
+    if os.path.exists(CACHE_MARKER):
+        with open(CACHE_MARKER, "r") as f:
+            marker = json.load(f)
+        if marker.get("sample_size") == sample_size:
+            try:
+                collection = client.get_collection("msmarco_chunks")
+                if collection.count() == marker.get("chunk_count"):
+                    print(f"Loaded cached index: {collection.count()} chunks from {sample_size} queries (skipped rebuild).")
+                    return collection
+            except Exception:
+                pass  # fall through to rebuild if anything's off
+
+    print("No valid cache found, building index from scratch...")
+
     path = hf_hub_download(
         repo_id="ai4bharat/MSMARCO-XI",
         filename="validation/hinval.parquet",
@@ -62,7 +84,6 @@ def build_index(sample_size=100):
     texts = [r["chunk_text"] for r in chunked_records]
     embeddings = embed_model.encode(texts, show_progress_bar=True).tolist()
 
-    client = chromadb.Client()
     try:
         client.delete_collection("msmarco_chunks")
     except Exception:
@@ -81,11 +102,22 @@ def build_index(sample_size=100):
         for r in chunked_records
     ]
 
-    collection.add(embeddings=embeddings, documents=texts, ids=ids, metadatas=metadatas)
+    BATCH_SIZE = 4000
+    for i in range(0, len(ids), BATCH_SIZE):
+        collection.add(
+            embeddings=embeddings[i:i+BATCH_SIZE],
+            documents=texts[i:i+BATCH_SIZE],
+            ids=ids[i:i+BATCH_SIZE],
+            metadatas=metadatas[i:i+BATCH_SIZE]
+        )
+
+    with open(CACHE_MARKER, "w") as f:
+        json.dump({"sample_size": sample_size, "chunk_count": len(chunked_records)}, f)
+
     print(f"Index built: {len(chunked_records)} chunks from {sample_size} queries.")
     return collection
 
-collection = build_index(sample_size=100)
+collection = build_index(sample_size=500)
 
 def retrieve(query, k=3):
     query_embedding = embed_model.encode([query]).tolist()
