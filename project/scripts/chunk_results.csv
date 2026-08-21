@@ -1,0 +1,4 @@
+chunk_size,number_of_chunks,correct,total,top5_accuracy
+50,252,3,6,50.0
+100,201,3,6,50.0
+200,200,3,6,50.0
