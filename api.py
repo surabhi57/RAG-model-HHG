@@ -7,7 +7,10 @@ Then test:
 """
 import os
 import tempfile
-from fastapi import FastAPI, UploadFile, File
+from fastapi import FastAPI, UploadFile, File, Query
+from fastapi.responses import Response
+import base64
+import requests
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 # Import your existing RAG pipeline
@@ -82,3 +85,46 @@ async def ask_voice(file: UploadFile = File(...)):
         # 5. Clean up the temp file so your drive doesn't fill up!
         if os.path.exists(temp_audio_path):
             os.remove(temp_audio_path)
+
+
+# --- TTS ENDPOINT (used by the frontend's Kannada Listen fallback) ---
+SARVAM_TTS_URL = "https://api.sarvam.ai/text-to-speech"
+LANG_CODE_MAP = {"kn": "kn-IN", "hi": "hi-IN", "en": "en-IN"}
+
+@app.get("/tts")
+def text_to_speech(text: str = Query(...), lang: str = Query("kn")):
+    """
+    Converts text to speech using Sarvam AI's TTS API.
+    Returns raw audio bytes (audio/wav) that the browser can play directly.
+    """
+    api_key = os.environ.get("SARVAM_API_KEY")
+    if not api_key:
+        return Response(content=b"", media_type="audio/wav", status_code=500)
+
+    target_lang = LANG_CODE_MAP.get(lang, "kn-IN")
+
+    try:
+        response = requests.post(
+            SARVAM_TTS_URL,
+            headers={
+                "api-subscription-key": api_key,
+                "Content-Type": "application/json",
+            },
+            json={
+                "text": text[:500],  # keep well under typical char limits
+                "target_language_code": target_lang,
+                "model": "bulbul:v2",
+            },
+            timeout=30,
+        )
+        response.raise_for_status()
+        data = response.json()
+        # Sarvam TTS returns base64-encoded audio in the "audios" list
+        audio_b64 = data.get("audios", [None])[0]
+        if not audio_b64:
+            return Response(content=b"", media_type="audio/wav", status_code=502)
+        audio_bytes = base64.b64decode(audio_b64)
+        return Response(content=audio_bytes, media_type="audio/wav")
+    except Exception as e:
+        print(f"[tts] failed: {e}")
+        return Response(content=b"", media_type="audio/wav", status_code=502)
