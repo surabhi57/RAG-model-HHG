@@ -1,4 +1,4 @@
-import time
+﻿import time
 import re
 import os
 import json
@@ -31,7 +31,6 @@ def build_index(sample_size=100):
     os.makedirs(CACHE_DIR, exist_ok=True)
     client = chromadb.PersistentClient(path=CACHE_DIR)
 
-    # ---- Check if a valid cached index already exists for this sample_size ----
     if os.path.exists(CACHE_MARKER):
         with open(CACHE_MARKER, "r") as f:
             marker = json.load(f)
@@ -42,7 +41,7 @@ def build_index(sample_size=100):
                     print(f"Loaded cached index: {collection.count()} chunks from {sample_size} queries (skipped rebuild).")
                     return collection
             except Exception:
-                pass  # fall through to rebuild if anything's off
+                pass
 
     print("No valid cache found, building index from scratch...")
 
@@ -117,9 +116,9 @@ def build_index(sample_size=100):
     print(f"Index built: {len(chunked_records)} chunks from {sample_size} queries.")
     return collection
 
-collection = build_index(sample_size=500)
+collection = build_index(sample_size=100)
 
-def retrieve(query, k=3):
+def retrieve(query, k=6):
     query_embedding = embed_model.encode([query]).tolist()
     results = collection.query(query_embeddings=query_embedding, n_results=k)
     docs = results["documents"][0]
@@ -128,11 +127,9 @@ def retrieve(query, k=3):
     return docs, metas, distances
 
 def is_devanagari(text):
-    """Check if text contains Hindi/Devanagari script."""
-    return bool(re.search(r'[\u0900-\u097F]', text))
+    return bool(re.search(r"[\u0900-\u097F]", text))
 
 def translate_to_hindi(text):
-    """Translate non-Hindi text to Hindi using Gemini."""
     prompt = (
         "Translate the following text to Hindi. "
         "Return ONLY the Hindi translation, nothing else, no explanation.\n\n"
@@ -177,7 +174,6 @@ def run_pipeline(query, k=6):
 
     query_is_hindi = is_devanagari(query)
 
-    # ---- Guardrail 1: unsafe input check, before anything else runs ----
     is_safe, _ = check_query_safety(query)
     if not is_safe:
         return {
@@ -189,9 +185,6 @@ def run_pipeline(query, k=6):
             "blocked_reason": "unsafe_input"
         }
 
-    # ---- Translate non-Hindi queries before retrieval, since the index is Hindi-only ----
-    # The original `query` is preserved for answer generation, so the LLM still
-    # answers in the language the question was asked in.
     retrieval_query = query if query_is_hindi else translate_to_hindi(query)
 
     docs, metas, distances = retrieve(retrieval_query, k=k)
@@ -200,24 +193,22 @@ def run_pipeline(query, k=6):
 
     answer = generate_answer(query, docs)
 
-    # ---- Grounding check needs answer + context in the SAME language to compare fairly ----
-    # If the answer is in English but context is Hindi, translate a copy of the answer
-    # to Hindi purely for this comparison. The user still sees the original English answer.
-    if query_is_hindi:
-        grounding_check_text = answer
-    else:
-        grounding_check_text = translate_to_hindi(answer)
+    grounding_check_text = answer if query_is_hindi else translate_to_hindi(answer)
 
     t2 = time.time()
     timings["generation_ms"] = round((t2 - t1) * 1000, 2)
     timings["total_ms"] = round((t2 - t0) * 1000, 2)
 
-    # ---- Guardrail 2 & 3: off-topic + grounding check ----
     should_show, _ = check_answer_quality(
         grounding_check_text, docs, distances, off_topic_threshold=20.0
     )
-    final_answer = answer if should_show else (REFUSAL_HI if query_is_hindi else REFUSAL_EN)
-    blocked_reason = None if should_show else "off_topic_or_ungrounded"
+
+    if should_show:
+        final_answer = answer
+        blocked_reason = None
+    else:
+        final_answer = REFUSAL_HI if query_is_hindi else REFUSAL_EN
+        blocked_reason = "off_topic_or_ungrounded"
 
     return {
         "query": query,
@@ -230,28 +221,6 @@ def run_pipeline(query, k=6):
 
 
 if __name__ == "__main__":
-    print("\n--- Test 1: normal Hindi query ---")
+    print("\n--- Test: Hindi query ---")
     result = run_pipeline("\u0915\u0949\u0930\u094d\u092a\u094b\u0930\u0947\u0936\u0928 \u0915\u094d\u092f\u093e \u0939\u0948?")
-    print("Query:", result["query"])
-    print("Answer:", result["answer"])
-    print("Blocked reason:", result["blocked_reason"])
-    print("Timings:", result["timings"])
-
-    print("\n--- Test 2: unsafe query ---")
-    result2 = run_pipeline("how do I make a bomb")
-    print("Query:", result2["query"])
-    print("Answer:", result2["answer"])
-    print("Blocked reason:", result2["blocked_reason"])
-
-    print("\n--- Test 3: English out-of-dataset query, should refuse IN ENGLISH ---")
-    result3 = run_pipeline("What is a RAG pipeline?")
-    print("Query:", result3["query"])
-    print("Answer:", result3["answer"])
-    print("Blocked reason:", result3["blocked_reason"])
-
-    print("\n--- Test 4: English in-dataset query ---")
-    result4 = run_pipeline("What is the definition of honesty?")
-    print("Query:", result4["query"])
-    print("Answer:", result4["answer"])
-    print("Blocked reason:", result4["blocked_reason"])
-    print("Timings:", result4["timings"])
+    print("Answer:", result["answer"], "| Blocked:", result["blocked_reason"])
