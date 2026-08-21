@@ -2,7 +2,7 @@
 const API_BASE_URL = (window.VoxaConfig?.API_BASE_URL || 'http://127.0.0.1:8000').replace(/\/$/, '');
 const $ = (id) => document.getElementById(id);
 const question = $('question'), transcript = $('transcript'), recordButton = $('record'), submitButton = $('submit');
-let recorder, stream, recognition, chunks = [], recording = false, activeUtterance = null, history = JSON.parse(localStorage.getItem('voxa-history') || '[]');
+let recorder, stream, recognition, chunks = [], recording = false, activeUtterance = null, fallbackAudio = null, history = JSON.parse(localStorage.getItem('voxa-history') || '[]');
 const wave = $('waveform');
 
 function setupBars() { document.querySelectorAll('.bars').forEach(container => { if (!container.children.length) for(let i=0;i<22;i++){ const b=document.createElement('span'); b.style.height=`${8+(i%7)*4}px`; b.style.animationDelay=`${i*.055}s`; container.append(b); } }); }
@@ -78,10 +78,71 @@ function showAnswer(data) { stopSpeaking(); const answer=data.answer||data.respo
 function saveHistory(query,answer){if(!query)return;history=[{query,answer,time:Date.now()},...history.filter(x=>x.query!==query)].slice(0,6);localStorage.setItem('voxa-history',JSON.stringify(history));renderHistory();}
 function renderHistory(){$('history-count').textContent=`${history.length} saved`;$('history-list').innerHTML=history.length?history.map((item,i)=>`<button class="history-item" data-history="${i}" title="${item.query}">${item.query}</button>`).join(''):'<p class="history-empty">Your question history stays in this browser.</p>';document.querySelectorAll('[data-history]').forEach(b=>b.onclick=()=>{question.value=history[b.dataset.history].query;question.focus();});}
 function updateListenButton(isSpeaking){const button=$('speak-answer');button.innerHTML=isSpeaking?'■ <span>Stop</span>':'▷ <span>Listen</span>';button.setAttribute('aria-pressed',String(isSpeaking));}
-function speechLanguage(){return /[\u0900-\u097F]/.test($('answer-text').textContent)?'hi-IN':'en-IN';}
+
+function speechLanguage(){
+  const text = $('answer-text').textContent;
+  if (/[\u0C80-\u0CFF]/.test(text)) return 'kn-IN';
+  if (/[\u0900-\u097F]/.test(text)) return 'hi-IN';
+  return 'en-IN';
+}
+
 function selectVoice(language){const voices=window.speechSynthesis.getVoices();if(!voices.length)return null;const root=language.split('-')[0].toLowerCase();return voices.find(voice=>voice.lang.toLowerCase()===language.toLowerCase())||voices.find(voice=>voice.lang.toLowerCase().startsWith(`${root}-`))||voices.find(voice=>voice.default)||voices[0];}
-function stopSpeaking(){if(!('speechSynthesis' in window))return;window.speechSynthesis.cancel();activeUtterance=null;updateListenButton(false);}
-function speakCurrentAnswer(){const text=$('answer-text').textContent.trim();if(!text||!('speechSynthesis'in window))return;if(window.speechSynthesis.speaking||window.speechSynthesis.pending){stopSpeaking();return;}const utterance=new SpeechSynthesisUtterance(text);const language=speechLanguage();utterance.lang=language;const voice=selectVoice(language);if(voice)utterance.voice=voice;utterance.onstart=()=>{activeUtterance=utterance;updateListenButton(true);};utterance.onend=()=>{if(activeUtterance===utterance){activeUtterance=null;updateListenButton(false);}};utterance.onerror=()=>{if(activeUtterance===utterance){activeUtterance=null;updateListenButton(false);}};activeUtterance=utterance;updateListenButton(true);window.speechSynthesis.speak(utterance);}
+
+function stopSpeaking(){
+  if (fallbackAudio) {
+    fallbackAudio.pause();
+    fallbackAudio.currentTime = 0;
+    fallbackAudio = null;
+  }
+  if ('speechSynthesis' in window) {
+    window.speechSynthesis.cancel();
+  }
+  activeUtterance = null;
+  updateListenButton(false);
+}
+
+function speakCurrentAnswer(){
+  const text = $('answer-text').textContent.trim();
+  if (!text) return;
+  if ((window.speechSynthesis && (window.speechSynthesis.speaking || window.speechSynthesis.pending)) || fallbackAudio) {
+    stopSpeaking();
+    return;
+  }
+
+  const language = speechLanguage();
+
+  // Cloud fallback for Kannada to ensure full audio playback without requiring local OS voice packs.
+  // Fetched as a blob (not a plain <audio src>) so we can send the ngrok-skip-browser-warning
+  // header - otherwise ngrok's free-tier interstitial HTML gets returned instead of audio.
+  if (language === 'kn-IN') {
+    updateListenButton(true);
+    const url = `${API_BASE_URL}/tts?text=${encodeURIComponent(text)}&lang=kn`;
+    fetch(url, { headers: { 'ngrok-skip-browser-warning': 'true' } })
+      .then(res => res.blob())
+      .then(blob => {
+        const objectUrl = URL.createObjectURL(blob);
+        fallbackAudio = new Audio(objectUrl);
+        fallbackAudio.onended = () => { fallbackAudio = null; updateListenButton(false); URL.revokeObjectURL(objectUrl); };
+        fallbackAudio.onerror = () => { fallbackAudio = null; updateListenButton(false); URL.revokeObjectURL(objectUrl); };
+        fallbackAudio.play().catch(() => { fallbackAudio = null; updateListenButton(false); });
+      })
+      .catch(() => { fallbackAudio = null; updateListenButton(false); });
+    return;
+  }
+
+  if (!('speechSynthesis' in window)) return;
+  const utterance = new SpeechSynthesisUtterance(text);
+  utterance.lang = language;
+  const voice = selectVoice(language);
+  if (voice) utterance.voice = voice;
+  utterance.onstart = () => { activeUtterance = utterance; updateListenButton(true); };
+  utterance.onend = () => { if (activeUtterance === utterance) { activeUtterance = null; updateListenButton(false); } };
+  utterance.onerror = () => { if (activeUtterance === utterance) { activeUtterance = null; updateListenButton(false); } };
+  activeUtterance = utterance;
+  updateListenButton(true);
+  window.speechSynthesis.speak(utterance);
+}
+
 function browserTranscription(){const Recognition=window.SpeechRecognition||window.webkitSpeechRecognition;if(!Recognition)return null;const r=new Recognition();r.lang=$('language').value;r.continuous=true;r.interimResults=true;r.onresult=e=>{let final='',interim='';for(let i=e.resultIndex;i<e.results.length;i++){if(e.results[i].isFinal)final+=e.results[i][0].transcript;else interim+=e.results[i][0].transcript;}if(final)question.value=`${question.value} ${final}`.trim();transcript.textContent=interim?`Listening: ${interim}`:`Transcribed: ${question.value}`;};r.onerror=e=>{$('recording-status').textContent=`Speech recognition: ${e.error}. Audio will still be sent to the backend.`;};return r;}
 async function toggleRecord(){if(recording){recorder?.stop();recognition?.stop();return;}if(!navigator.mediaDevices?.getUserMedia){$('recording-status').textContent='Recording is not supported in this browser.';return;}try{stream=await navigator.mediaDevices.getUserMedia({audio:true});chunks=[];recorder=new MediaRecorder(stream);recorder.ondataavailable=e=>e.data.size&&chunks.push(e.data);recorder.onstop=()=>{stream?.getTracks().forEach(t=>t.stop());setRecording(false);const blob=new Blob(chunks,{type:recorder.mimeType||'audio/webm'});if(blob.size)askVoice(blob);};recognition=browserTranscription();recognition?.start();recorder.start();setRecording(true);transcript.textContent='Listening…';}catch(error){$('recording-status').textContent='Microphone access was blocked. You can still type your question.';}}
 recordButton.onclick=toggleRecord;submitButton.onclick=()=>{const text=question.value.trim();if(!text){question.focus();$('recording-status').textContent='Type a question or use the microphone first.';return;}askText(text);};$('clear-question').onclick=()=>{question.value='';transcript.textContent='Your live transcription will appear here.';};$('copy-answer').onclick=async()=>{try{await navigator.clipboard.writeText($('answer-text').textContent);$('copy-answer').textContent='✓ Copied';setTimeout(()=>$('copy-answer').innerHTML='⧉ Copy',1400)}catch{}};$('clear-answer').onclick=clearAnswer;$('ask-another').onclick=()=>{question.value='';clearAnswer();question.focus();};$('speak-answer').addEventListener('click',speakCurrentAnswer);
