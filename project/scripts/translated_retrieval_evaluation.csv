@@ -1,0 +1,7 @@
+﻿query_id,query,english_query,expected_passage_id,correct_rank,top_10_ids
+205107,সততা বা সততার সংজ্ঞা,"The Bible says that ""the whole person is a man of integrity"".",2,10,"8,5,8,8,7,6,0,3,4,2"
+233826,এটা ঈগলে কিমান দ্ৰুতগতিত ভ্ৰমণ কৰে,How fast an eagle can fly,0,1,"0,6,8,5,3,9,4,7,7,9"
+300122,ফ্ৰেংক গিফৰ্ডে কিমানগৰাকী মহিলাক বিয়া কৰাইছিল,Frank Gifford married a woman who was not his wife.,1,2,"5,1,6,3,7,9,0,4,4,2"
+1090355,ষ্টাবহাব টোল বিনামূলীয়া নম্বৰ,StabaHub toll free number,7,3,"0,5,7,6,2,4,3,8,8,9"
+1102431,ৰেচেল কাৰ্চনে কিয় এক বাধ্যবাধকতা সহ্য কৰিবলৈ লিখিছিল,Rachel Carson wrote about enduring an obligation,4,1,"4,7,6,1,3,2,9,5,6,8"
+1102432,কৰ্পোৰেচন কি?,What is a corporation?,5,1,"5,7,2,2,9,0,0,9,3,5"
